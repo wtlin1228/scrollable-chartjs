@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/scrollable-chartjs/static/css/main.e6c13ad2.css",
+    "main.js": "/scrollable-chartjs/static/js/main.4d5c345b.js",
+    "index.html": "/scrollable-chartjs/index.html",
+    "main.e6c13ad2.css.map": "/scrollable-chartjs/static/css/main.e6c13ad2.css.map",
+    "main.4d5c345b.js.map": "/scrollable-chartjs/static/js/main.4d5c345b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.4d5c345b.js"
+  ]
+}
