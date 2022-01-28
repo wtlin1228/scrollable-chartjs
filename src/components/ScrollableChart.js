@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
+import usePrevious from "../hooks/usePrevious";
 
 const splitWithLength = (s, n) => {
   const result = [];
@@ -27,6 +28,7 @@ export default function ScrollableChart({
 }) {
   const [isScrollMode, setIsScrollMode] = useState(false);
   const isScrollModeRef = useRef(false);
+  const isCustomizedYAxisDraughtRef = useRef(false);
 
   /* -------------------------------------------------------------------------- */
   /*                                Helpers                                     */
@@ -73,21 +75,93 @@ export default function ScrollableChart({
     }
   }, [xTickMinWidth, xTickCount, goScrollMode, goScaleMode]);
 
+  const getOriginalYAxisWidth = useCallback(
+    () => chartRef.current.scales.y.width,
+    []
+  );
+
+  const getOriginalYAxisHeight = useCallback(
+    () =>
+      chartRef.current.scales.y.height +
+      chartRef.current.scales.y.paddingTop +
+      chartRef.current.scales.y.top,
+    []
+  );
+
+  const clearOriginalYAxis = useCallback(() => {
+    chartRef.current.canvas
+      .getContext("2d")
+      .clearRect(0, 0, getOriginalYAxisWidth(), getOriginalYAxisHeight());
+  }, [getOriginalYAxisHeight, getOriginalYAxisWidth]);
+
+  const drawCustomizedYAxis = useCallback(() => {
+    if (isCustomizedYAxisDraughtRef.current === true) {
+      return;
+    }
+
+    const yAxisCtx = yAxisRef.current.getContext("2d");
+    const scale = window.devicePixelRatio;
+    const height = getOriginalYAxisHeight();
+    const width = getOriginalYAxisWidth();
+
+    yAxisCtx.scale(scale, scale);
+    yAxisRef.current.height = height * scale;
+    yAxisRef.current.width = width * scale;
+    yAxisRef.current.style.height = height + "px";
+    yAxisRef.current.style.width = width + "px";
+    yAxisCtx.drawImage(
+      chartRef.current.canvas,
+      0,
+      0,
+      width * scale,
+      height * scale,
+      0,
+      0,
+      width * scale,
+      height * scale
+    );
+
+    isCustomizedYAxisDraughtRef.current = true;
+    clearOriginalYAxis();
+  }, [getOriginalYAxisHeight, getOriginalYAxisWidth, clearOriginalYAxis]);
+
   /* -------------------------------------------------------------------------- */
   /*                                Initialize                                  */
   /* -------------------------------------------------------------------------- */
-  const isInitialized = useRef(false);
+  const isInitializedRef = useRef(false);
   const plugin = useMemo(() => {
     return {
       id: "leo-1234",
+      afterDraw() {
+        if (isCustomizedYAxisDraughtRef.current === false) {
+          drawCustomizedYAxis();
+          return;
+        }
+
+        clearOriginalYAxis();
+      },
       afterRender() {
-        if (isInitialized.current === false) {
-          isInitialized.current = true;
+        if (isInitializedRef.current === false) {
+          isInitializedRef.current = true;
           goEitherScrollOrScaleMode();
         }
       },
     };
-  }, [goEitherScrollOrScaleMode]);
+  }, [clearOriginalYAxis, drawCustomizedYAxis, goEitherScrollOrScaleMode]);
+
+  /* -------------------------------------------------------------------------- */
+  /*     Whenever xTickCount changes, we need to redraw customized y axis.      */
+  /* -------------------------------------------------------------------------- */
+  const previousXTickCount = usePrevious(xTickCount);
+  useEffect(() => {
+    if (isInitializedRef.current === false) {
+      return;
+    }
+
+    if (previousXTickCount !== xTickCount) {
+      isCustomizedYAxisDraughtRef.current = false;
+    }
+  }, [drawCustomizedYAxis, previousXTickCount, xTickCount]);
 
   /* -------------------------------------------------------------------------- */
   /*                                Resize                                      */
@@ -104,6 +178,9 @@ export default function ScrollableChart({
     return () => resizeObserver.unobserve(targetElem);
   }, [goEitherScrollOrScaleMode]);
 
+  /* -------------------------------------------------------------------------- */
+  /*                          Patched Chart Props                               */
+  /* -------------------------------------------------------------------------- */
   const optionsBasedOnState = useMemo(
     () => ({
       ...options,
@@ -119,24 +196,42 @@ export default function ScrollableChart({
     };
   }, [data]);
 
+  /* -------------------------------------------------------------------------- */
+  /*                           HTML Element Ref                                 */
+  /* -------------------------------------------------------------------------- */
   const chartWrapperRef = useRef(null);
   const chartRef = useRef(null);
+  const yAxisRef = useRef(null);
+
   return (
     <div
-      ref={chartWrapperRef}
       style={{
         position: "relative",
-        minHeight: `${height}px`,
         width: "100%",
-        overflowX: "scroll",
       }}
     >
-      {children({
-        ref: chartRef,
-        options: optionsBasedOnState,
-        data: dataWithMultiLineLabel,
-        plugins: [plugin],
-      })}
+      <div
+        ref={chartWrapperRef}
+        style={{
+          position: "relative",
+          minHeight: `${height}px`,
+          width: "100%",
+          overflowX: "scroll",
+        }}
+      >
+        {children({
+          ref: chartRef,
+          options: optionsBasedOnState,
+          data: dataWithMultiLineLabel,
+          plugins: [plugin],
+        })}
+      </div>
+      <canvas
+        ref={yAxisRef}
+        height={height}
+        width="0"
+        style={{ position: "absolute", top: 0, left: 0, background: "white" }}
+      ></canvas>
     </div>
   );
 }
