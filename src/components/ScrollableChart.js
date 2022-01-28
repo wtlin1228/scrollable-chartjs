@@ -76,14 +76,14 @@ export default function ScrollableChart({
   /* -------------------------------------------------------------------------- */
   /*                                Initialize                                  */
   /* -------------------------------------------------------------------------- */
-  const isChartFinishFirstRenderRef = useRef(false);
+  const isInitialized = useRef(false);
   const plugin = useMemo(() => {
     return {
       id: "leo-1234",
       afterRender() {
-        if (isChartFinishFirstRenderRef.current === false) {
-          isChartFinishFirstRenderRef.current = true;
-          goEitherScrollOrScaleMode(true);
+        if (isInitialized.current === false) {
+          isInitialized.current = true;
+          goEitherScrollOrScaleMode();
         }
       },
     };
