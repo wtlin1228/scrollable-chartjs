@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/scrollable-chartjs/static/css/main.e6c13ad2.css",
-    "main.js": "/scrollable-chartjs/static/js/main.41127ba5.js",
+    "main.js": "/scrollable-chartjs/static/js/main.9df427bc.js",
     "index.html": "/scrollable-chartjs/index.html",
     "main.e6c13ad2.css.map": "/scrollable-chartjs/static/css/main.e6c13ad2.css.map",
-    "main.41127ba5.js.map": "/scrollable-chartjs/static/js/main.41127ba5.js.map"
+    "main.9df427bc.js.map": "/scrollable-chartjs/static/js/main.9df427bc.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.41127ba5.js"
+    "static/js/main.9df427bc.js"
   ]
 }
