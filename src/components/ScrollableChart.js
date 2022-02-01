@@ -1,12 +1,11 @@
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
 import usePrevious from "../hooks/usePrevious";
 
-const splitWithLength = (s, n) => {
-  const result = [];
-  for (let i = 0; i < s.length / n; i++) {
-    result.push(s.slice(i * n, (i + 1) * n));
-  }
-  return result;
+const Y_AXES_LEFT_OVERFLOW_WIDTH = 7;
+
+export const CHART_TYPE = {
+  bar: "bar",
+  line: "line",
 };
 
 const getShouldBeScrollMode = ({
@@ -19,6 +18,7 @@ const getShouldBeScrollMode = ({
 };
 
 export default function ScrollableChart({
+  chartType,
   height = 350,
   xTickMinWidth = 64,
   xTickCount,
@@ -75,10 +75,18 @@ export default function ScrollableChart({
     }
   }, [xTickMinWidth, xTickCount, goScrollMode, goScaleMode]);
 
-  const getOriginalYAxisWidth = useCallback(
-    () => chartRef.current.scales.y.width,
-    []
-  );
+  const getOriginalYAxisWidth = useCallback(() => {
+    if (chartType === CHART_TYPE.bar) {
+      return chartRef.current.scales.y.width;
+    }
+
+    if (chartType === CHART_TYPE.line) {
+      return Math.max(
+        chartRef.current.scales.y.width,
+        chartRef.current.scales.x._gridLineItems[0].tx1
+      );
+    }
+  }, [chartType]);
 
   const getOriginalYAxisHeight = useCallback(
     () =>
@@ -113,17 +121,16 @@ export default function ScrollableChart({
       chartRef.current.canvas,
       0,
       0,
-      width * scale,
+      (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
       height * scale,
       0,
       0,
-      width * scale,
+      (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
       height * scale
     );
 
     isCustomizedYAxisDraughtRef.current = true;
-    clearOriginalYAxis();
-  }, [getOriginalYAxisHeight, getOriginalYAxisWidth, clearOriginalYAxis]);
+  }, [getOriginalYAxisHeight, getOriginalYAxisWidth]);
 
   /* -------------------------------------------------------------------------- */
   /*                                Initialize                                  */
@@ -131,13 +138,19 @@ export default function ScrollableChart({
   const isInitializedRef = useRef(false);
   const plugin = useMemo(() => {
     return {
-      id: "leo-1234",
+      id: "draw-customized-y-axis-plugin",
       afterDraw() {
-        if (isCustomizedYAxisDraughtRef.current === false) {
-          drawCustomizedYAxis();
+        if (isScrollModeRef.current === false) {
           return;
         }
 
+        if (isCustomizedYAxisDraughtRef.current === false) {
+          drawCustomizedYAxis();
+        }
+
+        // Note:
+        // We can skip `clearOriginalYAxis()`
+        // if the background color of custom y axis is not transparent.
         clearOriginalYAxis();
       },
       afterRender() {
@@ -161,7 +174,7 @@ export default function ScrollableChart({
     if (previousXTickCount !== xTickCount) {
       isCustomizedYAxisDraughtRef.current = false;
     }
-  }, [drawCustomizedYAxis, previousXTickCount, xTickCount]);
+  }, [previousXTickCount, xTickCount]);
 
   /* -------------------------------------------------------------------------- */
   /*                                Resize                                      */
@@ -181,20 +194,13 @@ export default function ScrollableChart({
   /* -------------------------------------------------------------------------- */
   /*                          Patched Chart Props                               */
   /* -------------------------------------------------------------------------- */
-  const optionsBasedOnState = useMemo(
+  const optionsBasedOnScrollMode = useMemo(
     () => ({
       ...options,
       responsive: !isScrollMode,
     }),
     [isScrollMode, options]
   );
-
-  const dataWithMultiLineLabel = useMemo(() => {
-    return {
-      ...data,
-      labels: data.labels.map((label) => splitWithLength(label, 5)),
-    };
-  }, [data]);
 
   /* -------------------------------------------------------------------------- */
   /*                           HTML Element Ref                                 */
@@ -221,8 +227,8 @@ export default function ScrollableChart({
       >
         {children({
           ref: chartRef,
-          options: optionsBasedOnState,
-          data: dataWithMultiLineLabel,
+          options: optionsBasedOnScrollMode,
+          data,
           plugins: [plugin],
         })}
       </div>
@@ -230,7 +236,13 @@ export default function ScrollableChart({
         ref={yAxisRef}
         height={height}
         width="0"
-        style={{ position: "absolute", top: 0, left: 0, background: "white" }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          background: "white",
+          borderRight: "1px solid #ebebeb",
+        }}
       ></canvas>
     </div>
   );
