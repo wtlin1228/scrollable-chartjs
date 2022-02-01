@@ -1,38 +1,34 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import ScrollableChart, { CHART_TYPE } from "./ScrollableChart";
 import { withMultiLineLabels, joinMultiLineLabels } from "../utils/chart";
 
 const labels = [
-  "台北通喔哈1 店",
-  "台北2 店",
-  "新北1 店",
-  "新北2 店",
-  "台北3 店",
-  "新北3 店",
-  "澎湖1 店",
+  "2020-01-01",
+  "2020-01-02",
+  "2020-01-03",
+  "2020-01-04",
+  "2020-01-05",
+  "2020-01-06",
+  "2020-01-07",
 ];
 const defaultData = {
   labels: labels,
   datasets: [
     {
-      label: "目前區間",
-      data: [65, 59, 23, 43, 56, -55, 40],
-      backgroundColor: "rgba(255, 99, 132, 0.2)",
+      label: "你選擇的區間",
+      data: [65, 59, 80, 81, 56, 55, 40],
+      borderColor: "rgb(75, 192, 192)",
     },
     {
-      label: "去年同期",
-      data: [47, 0, -20, 50, 20, 30, 32],
-      backgroundColor: "rgba(255, 159, 64, 0.2)",
-    },
-    {
-      label: "前期",
-      data: [12, 0, -20, 50, 20, 30, 50],
-      backgroundColor: "rgba(100, 159, 64, 0.2)",
+      label: "前一年同期",
+      data: [81, 56, 55, 40, 65, 59, 80],
+      borderColor: "rgb(143, 34, 192)",
     },
   ],
 };
+
 const defaultOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -62,29 +58,34 @@ const defaultOptions = {
   },
 };
 
-let storeIdx = 20;
+const getNextDate = (date) => {
+  const today = new Date(date);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+};
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
 
-export default function DemoBar() {
+export default function DemoLine() {
   const [data, setData] = useState(defaultData);
 
-  const addNewStore = () => {
-    storeIdx += 1;
+  const addNewDate = () => {
     setData((old) => {
+      const newLabel = getNextDate(old.labels[old.labels.length - 1]);
       return {
-        labels: [...old.labels, `中彰投 ${storeIdx} 店`],
+        labels: [...old.labels, newLabel],
         datasets: old.datasets.map((dataset) => ({
           ...dataset,
-          data: [...dataset.data, getRandomInt(-100, 100)],
+          data: [...dataset.data, getRandomInt(0, 200)],
         })),
       };
     });
   };
 
-  const removeLastStore = () => {
-    storeIdx -= 1;
+  const removeLastDate = () => {
     setData((old) => {
       return {
         labels: old.labels.slice(0, old.labels.length - 1),
@@ -99,26 +100,27 @@ export default function DemoBar() {
   const dataWithMultiLineLabel = useMemo(() => {
     return {
       ...data,
-      labels: withMultiLineLabels({ labels: data.labels, maxCharPerLine: 5 }),
+      labels: withMultiLineLabels({ labels: data.labels, maxCharPerLine: 10 }),
     };
   }, [data]);
 
   return (
     <div>
-      <button onClick={addNewStore} style={{ display: "block" }}>
-        Add A Store
+      <button onClick={addNewDate} style={{ display: "block" }}>
+        Add A Date
       </button>
-      <button onClick={removeLastStore} style={{ display: "block" }}>
-        Remove Last Store
+      <button onClick={removeLastDate} style={{ display: "block" }}>
+        Remove Last Date
       </button>
 
       <ScrollableChart
-        chartType={CHART_TYPE.bar}
+        chartType={CHART_TYPE.line}
         options={defaultOptions}
         data={dataWithMultiLineLabel}
         xTickCount={data.labels.length}
+        xTickMinWidth={70}
       >
-        {(props) => <Bar {...props} />}
+        {(props) => <Line {...props} />}
       </ScrollableChart>
     </div>
   );
