@@ -242,6 +242,7 @@ export default function ScrollableChart({
           left: 0,
           background: "white",
           borderRight: "1px solid #ebebeb",
+          display: isScrollMode ? "block" : "none",
         }}
       ></canvas>
     </div>
