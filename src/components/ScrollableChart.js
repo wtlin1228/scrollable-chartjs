@@ -24,7 +24,7 @@ export default function ScrollableChart({
   xTickMinWidth = 64,
   xTickCount,
   options,
-  isCustomizedYAxisTransparent = false,
+  customizedYAxisBackgroundColor = "white",
   children,
 }) {
   const [isScrollMode, setIsScrollMode, isScrollModeRef] =
@@ -144,7 +144,7 @@ export default function ScrollableChart({
           drawCustomizedYAxis();
         }
 
-        if (isCustomizedYAxisTransparent) {
+        if (customizedYAxisBackgroundColor === "transparent") {
           clearOriginalYAxis();
         }
       },
@@ -157,7 +157,7 @@ export default function ScrollableChart({
     };
   }, [
     isScrollModeRef,
-    isCustomizedYAxisTransparent,
+    customizedYAxisBackgroundColor,
     clearOriginalYAxis,
     drawCustomizedYAxis,
     goEitherScrollOrScaleMode,
@@ -236,7 +236,7 @@ export default function ScrollableChart({
           position: "absolute",
           top: 0,
           left: 0,
-          background: isCustomizedYAxisTransparent ? "transparent" : "white",
+          background: customizedYAxisBackgroundColor,
           borderRight: "1px solid #ebebeb",
           display: isScrollMode ? "block" : "none",
         }}

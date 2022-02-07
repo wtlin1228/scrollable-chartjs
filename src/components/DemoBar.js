@@ -116,6 +116,7 @@ export default function DemoBar() {
         chartType={CHART_TYPE.bar}
         options={defaultOptions}
         xTickCount={data.labels.length}
+        customizedYAxisBackgroundColor="transparent"
       >
         {(props) => <Bar {...props} data={dataWithMultiLineLabel} />}
       </ScrollableChart>
