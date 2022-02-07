@@ -23,6 +23,7 @@ export default function ScrollableChart({
   xTickMinWidth = 64,
   xTickCount,
   options,
+  isCustomizedYAxisTransparent = false,
   children,
 }) {
   const [isScrollMode, setIsScrollMode] = useState(false);
@@ -149,10 +150,9 @@ export default function ScrollableChart({
           drawCustomizedYAxis();
         }
 
-        // Note:
-        // We can skip `clearOriginalYAxis()`
-        // if the background color of custom y axis is not transparent.
-        clearOriginalYAxis();
+        if (isCustomizedYAxisTransparent) {
+          clearOriginalYAxis();
+        }
       },
       afterRender() {
         if (isInitializedRef.current === false) {
@@ -161,7 +161,12 @@ export default function ScrollableChart({
         }
       },
     };
-  }, [clearOriginalYAxis, drawCustomizedYAxis, goEitherScrollOrScaleMode]);
+  }, [
+    isCustomizedYAxisTransparent,
+    clearOriginalYAxis,
+    drawCustomizedYAxis,
+    goEitherScrollOrScaleMode,
+  ]);
 
   /* -------------------------------------------------------------------------- */
   /*     Whenever xTickCount changes, we need to redraw customized y axis.      */
@@ -240,7 +245,7 @@ export default function ScrollableChart({
           position: "absolute",
           top: 0,
           left: 0,
-          background: "white",
+          background: isCustomizedYAxisTransparent ? "transparent" : "white",
           borderRight: "1px solid #ebebeb",
           display: isScrollMode ? "block" : "none",
         }}
