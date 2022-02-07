@@ -4,11 +4,6 @@ import useIsScrollMode from "../hooks/useIsScrollMode";
 
 const Y_AXES_LEFT_OVERFLOW_WIDTH = 7;
 
-export const CHART_TYPE = {
-  bar: "bar",
-  line: "line",
-};
-
 const getShouldBeScrollMode = ({
   xTickMinWidth,
   xTickCount,
@@ -19,7 +14,6 @@ const getShouldBeScrollMode = ({
 };
 
 export default function ScrollableChart({
-  chartType,
   height = 350,
   xTickMinWidth = 64,
   xTickCount,
@@ -70,19 +64,8 @@ export default function ScrollableChart({
   }, [xTickMinWidth, xTickCount, goScrollMode, goScaleMode]);
 
   const getOriginalYAxisWidth = useCallback(() => {
-    if (chartType === CHART_TYPE.bar) {
-      return chartRef.current.scales.y.width;
-    }
-
-    if (chartType === CHART_TYPE.line) {
-      const xPositionForTheFirstXGridLine =
-        chartRef.current.scales.x._gridLineItems[0].tx1;
-      return Math.max(
-        chartRef.current.scales.y.width,
-        xPositionForTheFirstXGridLine
-      );
-    }
-  }, [chartType]);
+    return chartRef.current.scales.y.right;
+  }, []);
 
   const getOriginalYAxisHeight = useCallback(
     () =>
@@ -105,24 +88,26 @@ export default function ScrollableChart({
 
     const yAxisContext = yAxisRef.current.getContext("2d");
     const scale = window.devicePixelRatio;
-    const height = getOriginalYAxisHeight();
-    const width = getOriginalYAxisWidth();
+
+    const height = Math.round(getOriginalYAxisHeight());
+    const width = Math.round(getOriginalYAxisWidth());
 
     yAxisContext.scale(scale, scale);
     yAxisRef.current.height = height * scale;
     yAxisRef.current.width = width * scale;
     yAxisRef.current.style.height = height + "px";
     yAxisRef.current.style.width = width + "px";
+
     yAxisContext.drawImage(
-      chartRef.current.canvas,
-      0,
-      0,
-      (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
-      height * scale,
-      0,
-      0,
-      (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
-      height * scale
+      /* image= */ chartRef.current.canvas,
+      /* sx= */ 0,
+      /* sy= */ 0,
+      /* sWidth= */ (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
+      /* sHeight= */ height * scale,
+      /* dx= */ 0,
+      /* dy= */ 0,
+      /* dWidth= */ (width - Y_AXES_LEFT_OVERFLOW_WIDTH) * scale,
+      /* dHeight= */ height * scale
     );
 
     shouldDrawCustomizedYAxisRef.current = false;
@@ -152,6 +137,8 @@ export default function ScrollableChart({
         if (isInitializedRef.current === false) {
           isInitializedRef.current = true;
           goEitherScrollOrScaleMode();
+        } else {
+          drawCustomizedYAxis({ force: true });
         }
       },
     };
@@ -206,6 +193,10 @@ export default function ScrollableChart({
   const chartRef = useRef(null);
   const yAxisRef = useRef(null);
 
+  useEffect(() => {
+    window.chartRef = chartRef;
+  }, []);
+
   return (
     <div
       style={{
@@ -237,7 +228,7 @@ export default function ScrollableChart({
           top: 0,
           left: 0,
           background: customizedYAxisBackgroundColor,
-          borderRight: "1px solid #ebebeb",
+          borderRight: "1.3px solid #d4d4d4",
           display: isScrollMode ? "block" : "none",
         }}
       ></canvas>

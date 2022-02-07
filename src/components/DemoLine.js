@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { Line } from "react-chartjs-2";
-import ScrollableChart, { CHART_TYPE } from "./ScrollableChart";
+import ScrollableChart from "./ScrollableChart";
 import { withMultiLineLabels, joinMultiLineLabels } from "../utils/chart";
 
 const labels = [
@@ -114,10 +114,9 @@ export default function DemoLine() {
       </button>
 
       <ScrollableChart
-        chartType={CHART_TYPE.line}
         options={defaultOptions}
         xTickCount={data.labels.length}
-        xTickMinWidth={70}
+        xTickMinWidth={71}
       >
         {(props) => <Line {...props} data={dataWithMultiLineLabel} />}
       </ScrollableChart>

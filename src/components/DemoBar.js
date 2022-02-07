@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
 import { Bar } from "react-chartjs-2";
-import ScrollableChart, { CHART_TYPE } from "./ScrollableChart";
+import ScrollableChart from "./ScrollableChart";
 import { withMultiLineLabels, joinMultiLineLabels } from "../utils/chart";
 
 const labels = [
@@ -112,12 +112,7 @@ export default function DemoBar() {
         Remove Last Store
       </button>
 
-      <ScrollableChart
-        chartType={CHART_TYPE.bar}
-        options={defaultOptions}
-        xTickCount={data.labels.length}
-        customizedYAxisBackgroundColor="transparent"
-      >
+      <ScrollableChart options={defaultOptions} xTickCount={data.labels.length}>
         {(props) => <Bar {...props} data={dataWithMultiLineLabel} />}
       </ScrollableChart>
     </div>
