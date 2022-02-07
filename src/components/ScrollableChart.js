@@ -22,7 +22,6 @@ export default function ScrollableChart({
   height = 350,
   xTickMinWidth = 64,
   xTickCount,
-  data,
   options,
   children,
 }) {
@@ -228,7 +227,6 @@ export default function ScrollableChart({
         {children({
           ref: chartRef,
           options: optionsBasedOnScrollMode,
-          data,
           plugins: [plugin],
         })}
       </div>

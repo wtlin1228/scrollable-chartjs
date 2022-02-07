@@ -116,11 +116,10 @@ export default function DemoLine() {
       <ScrollableChart
         chartType={CHART_TYPE.line}
         options={defaultOptions}
-        data={dataWithMultiLineLabel}
         xTickCount={data.labels.length}
         xTickMinWidth={70}
       >
-        {(props) => <Line {...props} />}
+        {(props) => <Line {...props} data={dataWithMultiLineLabel} />}
       </ScrollableChart>
     </div>
   );

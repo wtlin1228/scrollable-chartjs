@@ -115,10 +115,9 @@ export default function DemoBar() {
       <ScrollableChart
         chartType={CHART_TYPE.bar}
         options={defaultOptions}
-        data={dataWithMultiLineLabel}
         xTickCount={data.labels.length}
       >
-        {(props) => <Bar {...props} />}
+        {(props) => <Bar {...props} data={dataWithMultiLineLabel} />}
       </ScrollableChart>
     </div>
   );
