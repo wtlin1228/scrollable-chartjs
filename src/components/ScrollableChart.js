@@ -80,9 +80,11 @@ export default function ScrollableChart({
     }
 
     if (chartType === CHART_TYPE.line) {
+      const xPositionForTheFirstXGridLine =
+        chartRef.current.scales.x._gridLineItems[0].tx1;
       return Math.max(
         chartRef.current.scales.y.width,
-        chartRef.current.scales.x._gridLineItems[0].tx1
+        xPositionForTheFirstXGridLine
       );
     }
   }, [chartType]);
