@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useEffect, useState, useRef } from "react";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import usePrevious from "../hooks/usePrevious";
+import useIsScrollMode from "../hooks/useIsScrollMode";
 
 const Y_AXES_LEFT_OVERFLOW_WIDTH = 7;
 
@@ -26,8 +27,8 @@ export default function ScrollableChart({
   isCustomizedYAxisTransparent = false,
   children,
 }) {
-  const [isScrollMode, setIsScrollMode] = useState(false);
-  const isScrollModeRef = useRef(false);
+  const [isScrollMode, setIsScrollMode, isScrollModeRef] =
+    useIsScrollMode(false);
   const isCustomizedYAxisDrawnRef = useRef(false);
 
   /* -------------------------------------------------------------------------- */
@@ -44,20 +45,13 @@ export default function ScrollableChart({
   }, [height, xTickCount, xTickMinWidth]);
 
   const goScrollMode = useCallback(() => {
-    if (isScrollModeRef.current === false) {
-      setIsScrollMode(true);
-      isScrollModeRef.current = true;
-    }
-
+    setIsScrollMode(true);
     resizeChartForScrollMode();
-  }, [resizeChartForScrollMode]);
+  }, [setIsScrollMode, resizeChartForScrollMode]);
 
   const goScaleMode = useCallback(() => {
-    if (isScrollModeRef.current === true) {
-      setIsScrollMode(false);
-      isScrollModeRef.current = false;
-    }
-  }, []);
+    setIsScrollMode(false);
+  }, [setIsScrollMode]);
 
   const goEitherScrollOrScaleMode = useCallback(() => {
     const shouldBeScrollMode = getShouldBeScrollMode({
@@ -162,6 +156,7 @@ export default function ScrollableChart({
       },
     };
   }, [
+    isScrollModeRef,
     isCustomizedYAxisTransparent,
     clearOriginalYAxis,
     drawCustomizedYAxis,
