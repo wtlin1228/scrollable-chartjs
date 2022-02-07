@@ -220,7 +220,7 @@ export default function ScrollableChart({
         ref={chartWrapperRef}
         style={{
           position: "relative",
-          minHeight: `${height}px`,
+          height: `${height}px`,
           width: "100%",
           overflowX: "scroll",
         }}
