@@ -137,8 +137,6 @@ export default function ScrollableChart({
         if (isInitializedRef.current === false) {
           isInitializedRef.current = true;
           goEitherScrollOrScaleMode();
-        } else {
-          drawCustomizedYAxis({ force: true });
         }
       },
     };
