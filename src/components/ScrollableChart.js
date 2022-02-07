@@ -181,13 +181,9 @@ export default function ScrollableChart({
   /*                                Resize                                      */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
-    if (!chartWrapperRef.current) {
-      return;
-    }
-
     const targetElem = chartWrapperRef.current;
-
     const resizeObserver = new ResizeObserver(goEitherScrollOrScaleMode);
+
     resizeObserver.observe(targetElem);
     return () => resizeObserver.unobserve(targetElem);
   }, [goEitherScrollOrScaleMode]);
