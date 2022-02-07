@@ -103,17 +103,17 @@ export default function ScrollableChart({
       return;
     }
 
-    const yAxisCtx = yAxisRef.current.getContext("2d");
+    const yAxisContext = yAxisRef.current.getContext("2d");
     const scale = window.devicePixelRatio;
     const height = getOriginalYAxisHeight();
     const width = getOriginalYAxisWidth();
 
-    yAxisCtx.scale(scale, scale);
+    yAxisContext.scale(scale, scale);
     yAxisRef.current.height = height * scale;
     yAxisRef.current.width = width * scale;
     yAxisRef.current.style.height = height + "px";
     yAxisRef.current.style.width = width + "px";
-    yAxisCtx.drawImage(
+    yAxisContext.drawImage(
       chartRef.current.canvas,
       0,
       0,
