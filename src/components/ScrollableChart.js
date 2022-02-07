@@ -28,7 +28,7 @@ export default function ScrollableChart({
 }) {
   const [isScrollMode, setIsScrollMode] = useState(false);
   const isScrollModeRef = useRef(false);
-  const isCustomizedYAxisDraughtRef = useRef(false);
+  const isCustomizedYAxisDrawnRef = useRef(false);
 
   /* -------------------------------------------------------------------------- */
   /*                                Helpers                                     */
@@ -103,7 +103,7 @@ export default function ScrollableChart({
   }, [getOriginalYAxisHeight, getOriginalYAxisWidth]);
 
   const drawCustomizedYAxis = useCallback(() => {
-    if (isCustomizedYAxisDraughtRef.current === true) {
+    if (isCustomizedYAxisDrawnRef.current === true) {
       return;
     }
 
@@ -129,7 +129,7 @@ export default function ScrollableChart({
       height * scale
     );
 
-    isCustomizedYAxisDraughtRef.current = true;
+    isCustomizedYAxisDrawnRef.current = true;
   }, [getOriginalYAxisHeight, getOriginalYAxisWidth]);
 
   /* -------------------------------------------------------------------------- */
@@ -144,7 +144,7 @@ export default function ScrollableChart({
           return;
         }
 
-        if (isCustomizedYAxisDraughtRef.current === false) {
+        if (isCustomizedYAxisDrawnRef.current === false) {
           drawCustomizedYAxis();
         }
 
@@ -172,7 +172,7 @@ export default function ScrollableChart({
     }
 
     if (previousXTickCount !== xTickCount) {
-      isCustomizedYAxisDraughtRef.current = false;
+      isCustomizedYAxisDrawnRef.current = false;
     }
   }, [previousXTickCount, xTickCount]);
 
