@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useEffect, useRef } from "react";
-import usePrevious from "../hooks/usePrevious";
 import useIsScrollMode from "../hooks/useIsScrollMode";
 
 const Y_AXES_LEFT_OVERFLOW_WIDTH = 7;
@@ -120,6 +119,9 @@ export default function ScrollableChart({
   const plugin = useMemo(() => {
     return {
       id: "draw-customized-y-axis-plugin",
+      afterUpdate() {
+        shouldDrawCustomizedYAxisRef.current = true;
+      },
       afterDraw() {
         if (isScrollModeRef.current === false) {
           return;
@@ -147,20 +149,6 @@ export default function ScrollableChart({
     drawCustomizedYAxis,
     goEitherScrollOrScaleMode,
   ]);
-
-  /* -------------------------------------------------------------------------- */
-  /*     Whenever xTickCount changes, we need to redraw customized y axis.      */
-  /* -------------------------------------------------------------------------- */
-  const previousXTickCount = usePrevious(xTickCount);
-  useEffect(() => {
-    if (isInitializedRef.current === false) {
-      return;
-    }
-
-    if (previousXTickCount !== xTickCount) {
-      shouldDrawCustomizedYAxisRef.current = true;
-    }
-  }, [previousXTickCount, xTickCount]);
 
   /* -------------------------------------------------------------------------- */
   /*                                Resize                                      */
